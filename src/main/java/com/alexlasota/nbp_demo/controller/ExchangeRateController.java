@@ -30,15 +30,18 @@ public class ExchangeRateController {
         return ResponseEntity.ok(exchangeRateService.getCurrentRates());
     }
 
-    @GetMapping("/rates/{currency}")
-    public ResponseEntity<ExchangeRate> getRateForCurrency(@PathVariable String currency) {
-        return ResponseEntity.ok(exchangeRateService.getRateForCurrency(currency));
+    @GetMapping("/rates/{table}/{currency}")
+    public ResponseEntity<ExchangeRate> getRateForCurrency(
+            @PathVariable String table,
+            @PathVariable String currency) {
+        return ResponseEntity.ok(exchangeRateService.getRateForCurrency(table, currency));
     }
 
-    @GetMapping("/rates/{currency}/{date}")
+    @GetMapping("/rates/{table}/{currency}/{date}")
     public ResponseEntity<ExchangeRate> getRateForCurrencyAndDate(
+            @PathVariable String table,
             @PathVariable String currency,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return ResponseEntity.ok(exchangeRateService.getRateForCurrencyAndDate(currency, date));
+        return ResponseEntity.ok(exchangeRateService.getRateForCurrencyAndDate(table, currency, date));
     }
 }

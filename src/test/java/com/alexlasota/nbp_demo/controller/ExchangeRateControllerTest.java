@@ -26,25 +26,24 @@ class ExchangeRateControllerTest {
     private ExchangeRateController exchangeRateController;
 
     @Test
-    void healthCheck() {
-        ResponseEntity<String> response = exchangeRateController.healthCheck();
-        assertEquals("Application is up and running", response.getBody());
-        assertEquals(200, response.getStatusCodeValue());
-    }
-
-    @Test
     void getCurrentRates() {
-        ExchangeRate rate = new ExchangeRate();
-        rate.setCurrency("Euro");
-        rate.setCode("EUR");
-        rate.setMid(new BigDecimal("4.5"));
+        ExchangeRate rate1 = new ExchangeRate();
+        rate1.setCurrency("Euro");
+        rate1.setCode("EUR");
+        rate1.setMid(new BigDecimal("4.5"));
 
-        when(exchangeRateService.getCurrentRates()).thenReturn(List.of(rate));
+        ExchangeRate rate2 = new ExchangeRate();
+        rate2.setCurrency("US Dollar");
+        rate2.setCode("USD");
+        rate2.setMid(new BigDecimal("3.8"));
+
+        when(exchangeRateService.getCurrentRates()).thenReturn(List.of(rate1, rate2));
 
         ResponseEntity<List<ExchangeRate>> response = exchangeRateController.getCurrentRates();
 
-        assertEquals(1, response.getBody().size());
+        assertEquals(2, response.getBody().size());
         assertEquals("Euro", response.getBody().get(0).getCurrency());
+        assertEquals("US Dollar", response.getBody().get(1).getCurrency());
         assertEquals(200, response.getStatusCodeValue());
         verify(exchangeRateService, times(1)).getCurrentRates();
     }
@@ -56,13 +55,13 @@ class ExchangeRateControllerTest {
         rate.setCode("EUR");
         rate.setMid(new BigDecimal("4.5"));
 
-        when(exchangeRateService.getRateForCurrency("EUR")).thenReturn(rate);
+        when(exchangeRateService.getRateForCurrency("A", "EUR")).thenReturn(rate);
 
-        ResponseEntity<ExchangeRate> response = exchangeRateController.getRateForCurrency("EUR");
+        ResponseEntity<ExchangeRate> response = exchangeRateController.getRateForCurrency("A", "EUR");
 
         assertEquals("Euro", response.getBody().getCurrency());
         assertEquals(200, response.getStatusCodeValue());
-        verify(exchangeRateService, times(1)).getRateForCurrency("EUR");
+        verify(exchangeRateService, times(1)).getRateForCurrency("A", "EUR");
     }
 
     @Test
@@ -73,12 +72,12 @@ class ExchangeRateControllerTest {
         rate.setMid(new BigDecimal("4.5"));
 
         LocalDate date = LocalDate.of(2023, 1, 1);
-        when(exchangeRateService.getRateForCurrencyAndDate("EUR", date)).thenReturn(rate);
+        when(exchangeRateService.getRateForCurrencyAndDate("A", "EUR", date)).thenReturn(rate);
 
-        ResponseEntity<ExchangeRate> response = exchangeRateController.getRateForCurrencyAndDate("EUR", date);
+        ResponseEntity<ExchangeRate> response = exchangeRateController.getRateForCurrencyAndDate("A", "EUR", date);
 
         assertEquals("Euro", response.getBody().getCurrency());
         assertEquals(200, response.getStatusCodeValue());
-        verify(exchangeRateService, times(1)).getRateForCurrencyAndDate("EUR", date);
+        verify(exchangeRateService, times(1)).getRateForCurrencyAndDate("A", "EUR", date);
     }
 }

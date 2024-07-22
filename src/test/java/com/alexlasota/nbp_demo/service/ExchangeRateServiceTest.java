@@ -28,54 +28,86 @@ public class ExchangeRateServiceTest {
 
     @Test
     void getCurrentRates() {
-        ExchangeRateResponse response = new ExchangeRateResponse();
-        ExchangeRate rate = new ExchangeRate();
-        rate.setCurrency("Euro");
-        rate.setCode("EUR");
-        rate.setMid(new BigDecimal("4.5"));
-        response.setRates(List.of(rate));
+        ExchangeRate rateA = new ExchangeRate();
+        rateA.setCurrency("USD");
+        rateA.setCode("USD");
+        rateA.setMid(BigDecimal.valueOf(4.1234));
 
-        when(nbpApiClient.getCurrentRates()).thenReturn(new ExchangeRateResponse[]{response});
+        ExchangeRate rateB = new ExchangeRate();
+        rateB.setCurrency("EUR");
+        rateB.setCode("EUR");
+        rateB.setMid(BigDecimal.valueOf(4.5678));
+
+        ExchangeRateResponse responseA = new ExchangeRateResponse();
+        responseA.setRates(List.of(rateA));
+
+        ExchangeRateResponse responseB = new ExchangeRateResponse();
+        responseB.setRates(List.of(rateB));
+
+        when(nbpApiClient.getCurrentRatesA()).thenReturn(new ExchangeRateResponse[]{responseA});
+        when(nbpApiClient.getCurrentRatesB()).thenReturn(new ExchangeRateResponse[]{responseB});
 
         List<ExchangeRate> result = exchangeRateService.getCurrentRates();
 
-        assertEquals(1, result.size());
-        assertEquals("Euro", result.get(0).getCurrency());
-        verify(nbpApiClient, times(1)).getCurrentRates();
+        assertEquals(2, result.size());
+        assertEquals("USD", result.get(0).getCode());
+        assertEquals("EUR", result.get(1).getCode());
     }
 
     @Test
     void getRateForCurrency() {
-        ExchangeRateResponse response = new ExchangeRateResponse();
-        ExchangeRate rate = new ExchangeRate();
-        rate.setCurrency("Euro");
-        rate.setCode("EUR");
-        rate.setMid(new BigDecimal("4.5"));
-        response.setRates(List.of(rate));
+        ExchangeRate rateA = new ExchangeRate();
+        rateA.setCurrency("USD");
+        rateA.setCode("USD");
+        rateA.setMid(BigDecimal.valueOf(4.1234));
 
-        when(nbpApiClient.getRateForCurrency("EUR")).thenReturn(response);
+        ExchangeRate rateB = new ExchangeRate();
+        rateB.setCurrency("EUR");
+        rateB.setCode("EUR");
+        rateB.setMid(BigDecimal.valueOf(4.5678));
 
-        ExchangeRate result = exchangeRateService.getRateForCurrency("EUR");
+        ExchangeRateResponse responseA = new ExchangeRateResponse();
+        responseA.setRates(List.of(rateA));
 
-        assertEquals("Euro", result.getCurrency());
-        verify(nbpApiClient, times(1)).getRateForCurrency("EUR");
+        ExchangeRateResponse responseB = new ExchangeRateResponse();
+        responseB.setRates(List.of(rateB));
+
+        when(nbpApiClient.getCurrentRatesA()).thenReturn(new ExchangeRateResponse[]{responseA});
+        when(nbpApiClient.getCurrentRatesB()).thenReturn(new ExchangeRateResponse[]{responseB});
+
+        ExchangeRate result = exchangeRateService.getRateForCurrency("A", "EUR");
+
+        assertEquals("EUR", result.getCode());
+        verify(nbpApiClient, times(1)).getCurrentRatesA();
+        verify(nbpApiClient, times(1)).getCurrentRatesB();
     }
 
     @Test
     void getRateForCurrencyAndDate() {
-        ExchangeRateResponse response = new ExchangeRateResponse();
-        ExchangeRate rate = new ExchangeRate();
-        rate.setCurrency("Euro");
-        rate.setCode("EUR");
-        rate.setMid(new BigDecimal("4.5"));
-        response.setRates(List.of(rate));
+        ExchangeRate rateA = new ExchangeRate();
+        rateA.setCurrency("USD");
+        rateA.setCode("USD");
+        rateA.setMid(BigDecimal.valueOf(4.1234));
+
+        ExchangeRate rateB = new ExchangeRate();
+        rateB.setCurrency("EUR");
+        rateB.setCode("EUR");
+        rateB.setMid(BigDecimal.valueOf(4.5678));
+
+        ExchangeRateResponse responseA = new ExchangeRateResponse();
+        responseA.setRates(List.of(rateA));
+
+        ExchangeRateResponse responseB = new ExchangeRateResponse();
+        responseB.setRates(List.of(rateB));
+
+        when(nbpApiClient.getCurrentRatesA()).thenReturn(new ExchangeRateResponse[]{responseA});
+        when(nbpApiClient.getCurrentRatesB()).thenReturn(new ExchangeRateResponse[]{responseB});
 
         LocalDate date = LocalDate.of(2023, 1, 1);
-        when(nbpApiClient.getRateForCurrencyAndDate("EUR", "2023-01-01")).thenReturn(response);
+        ExchangeRate result = exchangeRateService.getRateForCurrencyAndDate("A", "EUR", date);
 
-        ExchangeRate result = exchangeRateService.getRateForCurrencyAndDate("EUR", date);
-
-        assertEquals("Euro", result.getCurrency());
-        verify(nbpApiClient, times(1)).getRateForCurrencyAndDate("EUR", "2023-01-01");
+        assertEquals("EUR", result.getCode());
+        verify(nbpApiClient, times(1)).getCurrentRatesA();
+        verify(nbpApiClient, times(1)).getCurrentRatesB();
     }
 }

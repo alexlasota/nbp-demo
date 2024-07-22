@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,20 +18,36 @@ public class ExchangeRateService {
     private final NbpApiClient nbpApiClient;
 
     public List<ExchangeRate> getCurrentRates() {
-        ExchangeRateResponse[] responses = nbpApiClient.getCurrentRates();
-        if (responses.length > 0) {
-            return responses[0].getRates();
+        ExchangeRateResponse[] responsesA = nbpApiClient.getCurrentRatesA();
+        ExchangeRateResponse[] responsesB = nbpApiClient.getCurrentRatesB();
+
+        List<ExchangeRate> allRates = new ArrayList<>();
+
+        for (ExchangeRateResponse response : responsesA) {
+            allRates.addAll(response.getRates());
         }
-        return List.of();
+
+        for (ExchangeRateResponse response : responsesB) {
+            allRates.addAll(response.getRates());
+        }
+
+        return allRates;
     }
 
-    public ExchangeRate getRateForCurrency(String currency) {
-        ExchangeRateResponse response = nbpApiClient.getRateForCurrency(currency);
-        return response.getRates().get(0);
+
+    public ExchangeRate getRateForCurrency(String table, String currency) {
+        List<ExchangeRate> allRates = getCurrentRates();
+        return allRates.stream()
+                .filter(rate -> currency.equalsIgnoreCase(rate.getCode()))
+                .findFirst()
+                .orElse(null);
     }
 
-    public ExchangeRate getRateForCurrencyAndDate(String currency, LocalDate date) {
-        ExchangeRateResponse response = nbpApiClient.getRateForCurrencyAndDate(currency, date.toString());
-        return response.getRates().get(0);
+    public ExchangeRate getRateForCurrencyAndDate(String table, String currency, LocalDate date) {
+        List<ExchangeRate> allRates = getCurrentRates();
+        return allRates.stream()
+                .filter(rate -> currency.equalsIgnoreCase(rate.getCode()))
+                .findFirst()
+                .orElse(null);
     }
 }

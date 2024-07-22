@@ -8,12 +8,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "nbpApi", url = "http://api.nbp.pl/api")
 public interface NbpApiClient {
 
-    @GetMapping("/exchangerates/tables/A?format=json")
-    ExchangeRateResponse[] getCurrentRates();
+    @GetMapping("/exchangerates/tables/A")
+    ExchangeRateResponse[] getCurrentRatesA();
 
-    @GetMapping("/exchangerates/rates/A/{currency}?format=json")
-    ExchangeRateResponse getRateForCurrency(@PathVariable("currency") String currency);
+    @GetMapping("/exchangerates/tables/B")
+    ExchangeRateResponse[] getCurrentRatesB();
 
-    @GetMapping("/exchangerates/rates/A/{currency}/{date}?format=json")
-    ExchangeRateResponse getRateForCurrencyAndDate(@PathVariable("currency") String currency, @PathVariable("date") String date);
+    @GetMapping("/exchangerates/rates/{table}/{currency}")
+    ExchangeRateResponse getRateForCurrency(@PathVariable("table") String table, @PathVariable("currency") String currency);
+
+    @GetMapping("/exchangerates/rates/{table}/{currency}/{date}")
+    ExchangeRateResponse getRateForCurrencyAndDate(@PathVariable("table") String table,
+                                                   @PathVariable("currency") String currency,
+                                                   @PathVariable("date") String date);
 }
